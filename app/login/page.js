@@ -20,7 +20,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4 bg-gray-50">
-      <FormCard title="Log In to Cust-Connect">
+      <FormCard title="Log In to CustConnect">
         {/* Attach the handler to the form's onSubmit event */}
         <form onSubmit={handleLoginSubmit} className="space-y-6"> 
           
