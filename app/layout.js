@@ -2,8 +2,7 @@
 
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-// import NavbarWrapper from '@/components/NavbarWrapper'; // <-- Import the new wrapper
-import RootLayoutWrapper from '@/components/RootLayoutWrapper'; // <-- Import the new wrapper
+import RootLayoutWrapper from '@/components/RootLayoutWrapper'; 
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,7 +14,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// METADATA MUST STAY HERE (Server Component)
 export const metadata = {
   title: "CustConnect", 
   description: "Campus Event & Club Management System",
@@ -23,11 +21,11 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    // Added suppressHydrationWarning to handle extension-injected code
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* Pass children to the new Client Wrapper */}
         <RootLayoutWrapper>
             {children}
         </RootLayoutWrapper>

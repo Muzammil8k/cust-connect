@@ -1,17 +1,67 @@
-// cust-connect-new/app/profile/page.js
+'use client';
+
+import { useEffect, useState } from 'react';
+import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 
+// Initialize Supabase Client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
+
 export default function ProfilePage() {
-  // MOCK USER DATA
-  const user = {
-    fullName: "John Doe",
-    username: "johndoe123",
-    email: "john.doe@university.edu",
-    phoneNumber: "+92 3XX XXXXXXX",
-    regNumber: "2024-CST-001",
-    memberOf: ["Photography Club", "Debate Society"],
-    role: "Student",
-  };
+  const [userProfile, setUserProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function getProfile() {
+      try {
+        // 1. Get the currently logged-in user from Auth
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        
+        if (authError || !user) throw authError;
+
+        // 2. Fetch their detailed profile from your 'profiles' table
+        const { data, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError) throw profileError;
+
+        // 3. Store the data (merging auth email with profile data)
+        setUserProfile({
+          ...data,
+          email: user.email
+        });
+      } catch (error) {
+        console.error('Error loading user data:', error.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    getProfile();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <p className="text-blue-600 font-semibold animate-pulse">Loading Profile...</p>
+      </div>
+    );
+  }
+
+  if (!userProfile) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+        <p className="text-red-500 mb-4">Could not load profile data.</p>
+        <Link href="/login" className="text-blue-600 underline">Return to Login</Link>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen p-8 bg-gray-100 flex flex-col items-center w-full">
@@ -23,28 +73,26 @@ export default function ProfilePage() {
 
         <div className="space-y-4">
           
-          {/* General Info Card */}
+          {/* General Info Card - Using REAL data */}
           <div className="border p-4 rounded-lg bg-gray-50">
-            <p className="text-lg font-semibold text-gray-800 mb-2">{user.fullName} ({user.role})</p>
-            <p className="text-sm text-gray-600">Username: {user.username}</p>
-            <p className="text-sm text-gray-600">Reg No: {user.regNumber}</p>
+            <p className="text-lg font-semibold text-gray-800 mb-2">
+              {userProfile.full_name} ({userProfile.role})
+            </p>
+            <p className="text-sm text-gray-600">Username: {userProfile.username}</p>
+            <p className="text-sm text-gray-600">Reg No: {userProfile.registration_number}</p>
           </div>
 
-          {/* Contact Info */}
+          {/* Contact Info - Using REAL data */}
           <div className="border p-4 rounded-lg">
             <h3 className="text-md font-semibold text-gray-700 mb-2">Contact Details</h3>
-            <p className="text-sm text-gray-600">Email: {user.email}</p>
-            <p className="text-sm text-gray-600">Phone: {user.phoneNumber}</p>
+            <p className="text-sm text-gray-600">Email: {userProfile.email}</p>
+            <p className="text-sm text-gray-600">Phone: {userProfile.phone_number}</p>
           </div>
 
-          {/* Club Membership */}
+          {/* Club Membership - Placeholder for now until you create the Club table */}
           <div className="border p-4 rounded-lg">
             <h3 className="text-md font-semibold text-gray-700 mb-2">Club Memberships</h3>
-            <ul className="list-disc list-inside text-sm text-gray-600">
-              {user.memberOf.map((club, index) => (
-                <li key={index}>{club}</li>
-              ))}
-            </ul>
+            <p className="text-sm text-gray-400 italic">No memberships found yet.</p>
           </div>
 
         </div>
